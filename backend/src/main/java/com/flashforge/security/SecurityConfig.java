@@ -34,9 +34,15 @@ public class SecurityConfig {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/h2-console/**", "/actuator/health").permitAll()
+                // Endpoints de autenticación públicos
+                .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                // Archivos estáticos del frontend de React
+                .requestMatchers("/", "/index.html", "/assets/**", "/vite.svg", "/icons.svg", "/manifest.webmanifest", "/sw.js", "/workbox-*.js", "/favicon.svg", "/pwa-*.png").permitAll()
+                // Cualquier otra ruta que NO sea /api, la permitimos porque React Router (Frontend) la manejará y protegerá
+                .requestMatchers(request -> !request.getServletPath().startsWith("/api")).permitAll()
+                // Todo lo demás de /api requiere autenticación
                 .anyRequest().authenticated()
             )
             .headers(headers -> headers.frameOptions(fo -> fo.disable())) // H2 console
