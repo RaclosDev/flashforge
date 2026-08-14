@@ -16,12 +16,7 @@ function ProtectedRoute({ children }) {
 }
 
 function App() {
-  const initTheme = useStore(state => state.initTheme);
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
-
-  useEffect(() => {
-    initTheme();
-  }, [initTheme]);
 
   return (
     <Router>
