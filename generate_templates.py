@@ -1,121 +1,131 @@
 import json
 import os
+import urllib.request
 
 TEMPLATES_DIR = "backend/src/main/resources/templates"
 os.makedirs(TEMPLATES_DIR, exist_ok=True)
 
-# Datos base
-countries = [
-    {"name": "España", "capital": "Madrid", "continent": "Europe", "flag": "🇪🇸"},
-    {"name": "Francia", "capital": "París", "continent": "Europe", "flag": "🇫🇷"},
-    {"name": "Alemania", "capital": "Berlín", "continent": "Europe", "flag": "🇩🇪"},
-    {"name": "Italia", "capital": "Roma", "continent": "Europe", "flag": "🇮🇹"},
-    {"name": "Reino Unido", "capital": "Londres", "continent": "Europe", "flag": "🇬🇧"},
-    {"name": "Portugal", "capital": "Lisboa", "continent": "Europe", "flag": "🇵🇹"},
-    {"name": "Grecia", "capital": "Atenas", "continent": "Europe", "flag": "🇬🇷"},
-    {"name": "Rusia", "capital": "Moscú", "continent": "Europe", "flag": "🇷🇺"},
-    {"name": "Suecia", "capital": "Estocolmo", "continent": "Europe", "flag": "🇸🇪"},
-    {"name": "Noruega", "capital": "Oslo", "continent": "Europe", "flag": "🇳🇴"},
-    {"name": "Finlandia", "capital": "Helsinki", "continent": "Europe", "flag": "🇫🇮"},
-    {"name": "Polonia", "capital": "Varsovia", "continent": "Europe", "flag": "🇵🇱"},
-    {"name": "Ucrania", "capital": "Kiev", "continent": "Europe", "flag": "🇺🇦"},
-    {"name": "Irlanda", "capital": "Dublín", "continent": "Europe", "flag": "🇮🇪"},
-    {"name": "Países Bajos", "capital": "Ámsterdam", "continent": "Europe", "flag": "🇳🇱"},
+print("Fetching countries data...")
+url = "https://raw.githubusercontent.com/mledoze/countries/master/countries.json"
+req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+with urllib.request.urlopen(req) as response:
+    data = json.loads(response.read().decode())
 
-    {"name": "Estados Unidos", "capital": "Washington D.C.", "continent": "America", "flag": "🇺🇸"},
-    {"name": "Canadá", "capital": "Ottawa", "continent": "America", "flag": "🇨🇦"},
-    {"name": "México", "capital": "Ciudad de México", "continent": "America", "flag": "🇲🇽"},
-    {"name": "Brasil", "capital": "Brasilia", "continent": "America", "flag": "🇧🇷"},
-    {"name": "Argentina", "capital": "Buenos Aires", "continent": "America", "flag": "🇦🇷"},
-    {"name": "Colombia", "capital": "Bogotá", "continent": "America", "flag": "🇨🇴"},
-    {"name": "Chile", "capital": "Santiago", "continent": "America", "flag": "🇨🇱"},
-    {"name": "Perú", "capital": "Lima", "continent": "America", "flag": "🇵🇪"},
-    {"name": "Venezuela", "capital": "Caracas", "continent": "America", "flag": "🇻🇪"},
-    {"name": "Cuba", "capital": "La Habana", "continent": "America", "flag": "🇨🇺"},
-
-    {"name": "China", "capital": "Pekín", "continent": "Asia", "flag": "🇨🇳"},
-    {"name": "Japón", "capital": "Tokio", "continent": "Asia", "flag": "🇯🇵"},
-    {"name": "Corea del Sur", "capital": "Seúl", "continent": "Asia", "flag": "🇰🇷"},
-    {"name": "India", "capital": "Nueva Delhi", "continent": "Asia", "flag": "🇮🇳"},
-    {"name": "Turquía", "capital": "Ankara", "continent": "Asia", "flag": "🇹🇷"},
-    {"name": "Arabia Saudita", "capital": "Riad", "continent": "Asia", "flag": "🇸🇦"},
-    {"name": "Indonesia", "capital": "Yakarta", "continent": "Asia", "flag": "🇮🇩"},
-    {"name": "Irán", "capital": "Teherán", "continent": "Asia", "flag": "🇮🇷"},
-    {"name": "Pakistán", "capital": "Islamabad", "continent": "Asia", "flag": "🇵🇰"},
-    {"name": "Vietnam", "capital": "Hanói", "continent": "Asia", "flag": "🇻🇳"},
-
-    {"name": "Egipto", "capital": "El Cairo", "continent": "Africa", "flag": "🇪🇬"},
-    {"name": "Sudáfrica", "capital": "Pretoria", "continent": "Africa", "flag": "🇿🇦"},
-    {"name": "Nigeria", "capital": "Abuya", "continent": "Africa", "flag": "🇳🇬"},
-    {"name": "Kenia", "capital": "Nairobi", "continent": "Africa", "flag": "🇰🇪"},
-    {"name": "Marruecos", "capital": "Rabat", "continent": "Africa", "flag": "🇲🇦"},
-    {"name": "Argelia", "capital": "Argel", "continent": "Africa", "flag": "🇩🇿"},
-    {"name": "Etiopía", "capital": "Adís Abeba", "continent": "Africa", "flag": "🇪🇹"},
-    {"name": "Ghana", "capital": "Acra", "continent": "Africa", "flag": "🇬🇭"},
-
-    {"name": "Australia", "capital": "Canberra", "continent": "Oceania", "flag": "🇦🇺"},
-    {"name": "Nueva Zelanda", "capital": "Wellington", "continent": "Oceania", "flag": "🇳🇿"},
-    {"name": "Fiyi", "capital": "Suva", "continent": "Oceania", "flag": "🇫🇯"},
-]
-
-templates = []
-
-def create_capitals_template(id_suffix, name, desc, continent_filter=None):
-    filtered = [c for c in countries if continent_filter is None or c["continent"] == continent_filter]
-    if not filtered: return
-    cards = [{"front": c["name"], "back": c["capital"]} for c in filtered]
+countries = []
+for country in data:
+    name = country.get('translations', {}).get('spa', {}).get('common', country.get('name', {}).get('common'))
+    capital = country.get('capital', [""])[0] if country.get('capital') else ""
+    continent = country.get('region', "Unknown") 
+    flag = country.get('flag', "") 
     
-    data = {
-        "id": f"capitals-{id_suffix}",
-        "name": name,
-        "description": desc,
+    if not capital: continue
+    
+    region_map = {
+        "Europe": "Europe",
+        "Americas": "America",
+        "Asia": "Asia",
+        "Africa": "Africa",
+        "Oceania": "Oceania"
+    }
+    
+    mapped_continent = region_map.get(continent, "Unknown")
+    
+    if mapped_continent != "Unknown" and flag:
+        countries.append({
+            "name": name,
+            "capital": capital,
+            "continent": mapped_continent,
+            "flag": flag
+        })
+
+countries.sort(key=lambda x: x['name'])
+print(f"Loaded {len(countries)} countries.")
+
+# Agrupar por continentes
+by_continent = {"Europe": [], "America": [], "Asia": [], "Africa": [], "Oceania": []}
+
+for c in countries:
+    if c["continent"] in by_continent:
+        by_continent[c["continent"]].append(c)
+
+# 1. Capitales por continente
+continent_names = {
+    "Europe": "Europa",
+    "America": "América",
+    "Asia": "Asia",
+    "Africa": "África",
+    "Oceania": "Oceanía"
+}
+
+for cont, list_c in by_continent.items():
+    if not list_c: continue
+    cards = [{"front": c["name"], "back": c["capital"]} for c in list_c]
+    deck = {
+        "id": f"capitals-{cont.lower()}",
+        "name": f"Capitales de {continent_names[cont]}",
+        "description": f"Aprende las capitales de los países de {continent_names[cont]}.",
         "category": "Geografía",
-        "icon": "🌍" if continent_filter is None else "🗺️",
         "cards": cards
     }
-    
-    path = os.path.join(TEMPLATES_DIR, f"{data['id']}.json")
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-    templates.append(data)
+    with open(f"{TEMPLATES_DIR}/capitals-{cont.lower()}.json", "w", encoding="utf-8") as f:
+        json.dump(deck, f, ensure_ascii=False, indent=2)
 
-# Capitals
-create_capitals_template("europe", "Capitales de Europa", "Aprende las capitales de los principales países europeos.", "Europe")
-create_capitals_template("america", "Capitales de América", "Aprende las capitales de los principales países americanos.", "America")
-create_capitals_template("asia", "Capitales de Asia", "Aprende las capitales de los principales países asiáticos.", "Asia")
-create_capitals_template("africa", "Capitales de África", "Aprende las capitales de los principales países africanos.", "Africa")
-create_capitals_template("oceania", "Capitales de Oceanía", "Aprende las capitales de Oceanía.", "Oceania")
-create_capitals_template("world", "Capitales del Mundo", "El reto definitivo. Todas las capitales importantes del mundo en un solo mazo.", None)
+# 2. Capitales del mundo
+world_cards = [{"front": c["name"], "back": c["capital"]} for c in countries]
+world_deck = {
+    "id": "capitals-world",
+    "name": "Capitales del Mundo",
+    "description": "El reto definitivo. Todas las capitales del mundo en un solo mazo.",
+    "category": "Geografía",
+    "cards": world_cards
+}
+with open(f"{TEMPLATES_DIR}/capitals-world.json", "w", encoding="utf-8") as f:
+    json.dump(world_deck, f, ensure_ascii=False, indent=2)
 
-# Flags
-flags_cards = [{"front": f"<div style='font-size: 80px; text-align: center;'>{c['flag']}</div>", "back": c["name"]} for c in countries]
-flags_data = {
+# 3. Banderas del mundo
+flags_cards = [{"front": c["flag"], "back": c["name"]} for c in countries]
+flags_deck = {
     "id": "flags-world",
     "name": "Banderas del Mundo",
-    "description": "Memoriza las banderas de los principales países usando emojis nativos.",
+    "description": "Memoriza las banderas de todos los países usando emojis nativos.",
     "category": "Cultura",
-    "icon": "🚩",
     "cards": flags_cards
 }
-path = os.path.join(TEMPLATES_DIR, f"{flags_data['id']}.json")
-with open(path, "w", encoding="utf-8") as f:
-    json.dump(flags_data, f, ensure_ascii=False, indent=2)
-templates.append(flags_data)
+with open(f"{TEMPLATES_DIR}/flags-world.json", "w", encoding="utf-8") as f:
+    json.dump(flags_deck, f, ensure_ascii=False, indent=2)
 
-# Registry
-registry = [
-    {
-        "id": t["id"],
-        "name": t["name"],
-        "description": t["description"],
-        "category": t["category"],
-        "icon": t["icon"],
-        "cardCount": len(t["cards"])
-    }
-    for t in templates
-]
+# 4. Generar registry.json
+registry = []
+for cont, list_c in by_continent.items():
+    if not list_c: continue
+    registry.append({
+        "id": f"capitals-{cont.lower()}",
+        "name": f"Capitales de {continent_names[cont]}",
+        "description": f"Aprende las capitales de {continent_names[cont]}.",
+        "category": "Geografía",
+        "icon": "🗺️",
+        "cardCount": len(list_c)
+    })
 
-with open(os.path.join(TEMPLATES_DIR, "registry.json"), "w", encoding="utf-8") as f:
+registry.append({
+    "id": "capitals-world",
+    "name": "Capitales del Mundo",
+    "description": "El reto definitivo. Todas las capitales del mundo en un solo mazo.",
+    "category": "Geografía",
+    "icon": "🌍",
+    "cardCount": len(countries)
+})
+
+registry.append({
+    "id": "flags-world",
+    "name": "Banderas del Mundo",
+    "description": "Memoriza las banderas de todos los países usando emojis nativos.",
+    "category": "Cultura",
+    "icon": "🚩",
+    "cardCount": len(countries)
+})
+
+with open(f"{TEMPLATES_DIR}/registry.json", "w", encoding="utf-8") as f:
     json.dump(registry, f, ensure_ascii=False, indent=2)
 
-print("✅ Templates generated successfully in", TEMPLATES_DIR)
+print("¡Archivos JSON generados correctamente!")
