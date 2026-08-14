@@ -20,7 +20,6 @@ backend/data/
 .env
 .env.local
 .env.production
-application-prod.properties
 
 # ── OS ────────────────────────────────────────────────────────
 .DS_Store
