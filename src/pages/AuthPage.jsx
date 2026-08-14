@@ -111,7 +111,8 @@ export default function AuthPage() {
           <button
             type="submit"
             id="auth-submit-btn"
-            className="btn btn-primary btn-full"
+            className="primary-btn"
+            style={{ width: '100%', padding: '0.875rem', fontSize: '1rem' }}
             disabled={loading}
           >
             {loading ? (
