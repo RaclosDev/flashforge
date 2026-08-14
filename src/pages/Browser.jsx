@@ -6,6 +6,16 @@ export default function Browser() {
   const [selectedDeckId, setSelectedDeckId] = useState('');
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredNotes = notes.filter(note => {
+    if (!searchQuery) return true;
+    const fields = JSON.parse(note.fieldsJson || '{}');
+    const front = (fields.front || fields.Front || '').toLowerCase();
+    const back = (fields.back || fields.Back || '').toLowerCase();
+    const q = searchQuery.toLowerCase();
+    return front.includes(q) || back.includes(q);
+  });
 
   // Fetch decks on mount
   useEffect(() => {
@@ -61,6 +71,20 @@ export default function Browser() {
             <option key={deck.id} value={deck.id}>{deck.name}</option>
           ))}
         </select>
+        
+        <div style={{ flex: 1 }} />
+        
+        <div style={{ position: 'relative', width: '300px' }}>
+          <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>🔍</span>
+          <input
+            type="text"
+            className="glass-input"
+            placeholder="Buscar en tarjetas..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{ paddingLeft: '36px' }}
+          />
+        </div>
       </div>
 
       <div className="glass-panel" style={{ padding: '0', overflow: 'hidden' }}>
@@ -81,7 +105,7 @@ export default function Browser() {
                 </tr>
               </thead>
               <tbody>
-                {notes.map(note => {
+                {filteredNotes.map(note => {
                   const fields = JSON.parse(note.fieldsJson || '{}');
                   return (
                     <tr key={note.id} style={{ borderBottom: '1px solid var(--border-color)', transition: 'var(--transition-fast)' }}>
