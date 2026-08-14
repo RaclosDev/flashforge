@@ -42,4 +42,6 @@ RUN apk add --no-cache tzdata && \
     echo $TZ > /etc/timezone && \
     apk del tzdata
 
+ENV SPRING_PROFILES_ACTIVE=prod
+
 ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]
