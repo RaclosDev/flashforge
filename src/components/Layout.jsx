@@ -70,10 +70,14 @@ function Layout({ children }) {
                 Herramientas
               </div>
 
-              <button className="sidebar-link" onClick={() => {/* TODO: browser */}}>
+              <NavLink
+                to="/browser"
+                className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+                onClick={closeSidebar}
+              >
                 <span className="link-icon">🔍</span>
                 Explorar Tarjetas
-              </button>
+              </NavLink>
 
               <button className="sidebar-link" onClick={() => {/* TODO: settings */}}>
                 <span className="link-icon">⚙️</span>
