@@ -1,9 +1,9 @@
 function RatingButtons({ intervals, onRate, disabled }) {
   const buttons = [
-    { key: 'again', label: 'Repetir', rating: 1, interval: intervals?.again },
-    { key: 'hard', label: 'Difícil', rating: 2, interval: intervals?.hard },
-    { key: 'good', label: 'Bien', rating: 3, interval: intervals?.good },
-    { key: 'easy', label: 'Fácil', rating: 4, interval: intervals?.easy },
+    { key: 'again', label: 'Repetir', rating: 1, interval: intervals?.[1] },
+    { key: 'hard', label: 'Difícil', rating: 2, interval: intervals?.[2] },
+    { key: 'good', label: 'Bien', rating: 3, interval: intervals?.[3] },
+    { key: 'easy', label: 'Fácil', rating: 4, interval: intervals?.[4] },
   ];
 
   return (
