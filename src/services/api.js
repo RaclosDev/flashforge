@@ -3,7 +3,9 @@
  * HTTP client for communicating with the Spring Boot backend.
  */
 
-const API_BASE = '/api';
+// En dev: usa proxy de Vite (/api → localhost:8080)
+// En prod: usa VITE_API_URL (URL del backend en Railway)
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 export class ApiError extends Error {
   constructor(message, status, data) {
