@@ -1,0 +1,139 @@
+import { useState } from 'react';
+import useAuthStore from '../store/useAuthStore';
+
+export default function AuthPage() {
+  const [mode, setMode] = useState('login'); // 'login' | 'register'
+  const [form, setForm] = useState({ email: '', name: '', password: '' });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { login, register } = useAuthStore();
+
+  const handleChange = (e) => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      if (mode === 'login') {
+        await login(form.email, form.password);
+      } else {
+        if (form.name.trim().length < 2) throw new Error('El nombre debe tener al menos 2 caracteres');
+        await register(form.email, form.name, form.password);
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="auth-page">
+      <div className="auth-card glass">
+        {/* Logo */}
+        <div className="auth-logo">
+          <div className="auth-logo-icon">⚡</div>
+          <h1 className="auth-logo-text">FlashForge</h1>
+          <p className="auth-logo-sub">Spaced repetition, reimagined</p>
+        </div>
+
+        {/* Tabs */}
+        <div className="auth-tabs">
+          <button
+            className={`auth-tab ${mode === 'login' ? 'active' : ''}`}
+            onClick={() => { setMode('login'); setError(''); }}
+          >
+            Iniciar sesión
+          </button>
+          <button
+            className={`auth-tab ${mode === 'register' ? 'active' : ''}`}
+            onClick={() => { setMode('register'); setError(''); }}
+          >
+            Crear cuenta
+          </button>
+        </div>
+
+        {/* Form */}
+        <form className="auth-form" onSubmit={handleSubmit}>
+          {mode === 'register' && (
+            <div className="form-group">
+              <label htmlFor="auth-name">Nombre</label>
+              <input
+                id="auth-name"
+                type="text"
+                name="name"
+                placeholder="Tu nombre"
+                value={form.name}
+                onChange={handleChange}
+                required
+                minLength={2}
+                className="form-input"
+              />
+            </div>
+          )}
+
+          <div className="form-group">
+            <label htmlFor="auth-email">Email</label>
+            <input
+              id="auth-email"
+              type="email"
+              name="email"
+              placeholder="tu@email.com"
+              value={form.email}
+              onChange={handleChange}
+              required
+              className="form-input"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="auth-password">Contraseña</label>
+            <input
+              id="auth-password"
+              type="password"
+              name="password"
+              placeholder={mode === 'register' ? 'Mínimo 6 caracteres' : '••••••••'}
+              value={form.password}
+              onChange={handleChange}
+              required
+              minLength={mode === 'register' ? 6 : 1}
+              className="form-input"
+            />
+          </div>
+
+          {error && (
+            <div className="auth-error">
+              <span>⚠️</span> {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            id="auth-submit-btn"
+            className="btn btn-primary btn-full"
+            disabled={loading}
+          >
+            {loading ? (
+              <span className="spinner-sm" />
+            ) : (
+              mode === 'login' ? 'Entrar' : 'Crear cuenta'
+            )}
+          </button>
+        </form>
+
+        <p className="auth-footer">
+          {mode === 'login'
+            ? '¿No tienes cuenta? '
+            : '¿Ya tienes cuenta? '}
+          <button
+            className="link-btn"
+            onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(''); }}
+          >
+            {mode === 'login' ? 'Regístrate' : 'Inicia sesión'}
+          </button>
+        </p>
+      </div>
+    </div>
+  );
+}

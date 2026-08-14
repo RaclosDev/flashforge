@@ -1,0 +1,140 @@
+import { NavLink, useLocation } from 'react-router-dom';
+import useStore from '../store/useStore';
+import useAuthStore from '../store/useAuthStore';
+
+function Layout({ children }) {
+  const { sidebarOpen, toggleSidebar, closeSidebar, toasts } = useStore();
+  const { user, logout } = useAuthStore();
+  const location = useLocation();
+
+  const isStudyPage = location.pathname.startsWith('/study');
+
+  return (
+    <>
+      {/* Mobile Header */}
+      <div className="mobile-header">
+        <button className="mobile-menu-btn" onClick={toggleSidebar} aria-label="Menu">
+          ☰
+        </button>
+        <span className="mobile-header-title">⚡ FlashForge</span>
+        <div style={{ width: 28 }} />
+      </div>
+
+      <div className="app-layout">
+        {/* Sidebar Overlay (mobile) */}
+        <div
+          className={`sidebar-overlay ${sidebarOpen ? 'visible' : ''}`}
+          onClick={closeSidebar}
+        />
+
+        {/* Sidebar */}
+        {!isStudyPage && (
+          <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+            <div className="sidebar-header">
+              <div className="sidebar-logo-icon">⚡</div>
+              <span className="sidebar-logo">FlashForge</span>
+            </div>
+
+            <nav className="sidebar-nav">
+              <div className="sidebar-section-title">Principal</div>
+
+              <NavLink
+                to="/"
+                end
+                className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+                onClick={closeSidebar}
+              >
+                <span className="link-icon">📚</span>
+                Mis Mazos
+              </NavLink>
+
+              <NavLink
+                to="/add"
+                className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+                onClick={closeSidebar}
+              >
+                <span className="link-icon">➕</span>
+                Añadir Tarjetas
+              </NavLink>
+
+              <NavLink
+                to="/stats"
+                className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+                onClick={closeSidebar}
+              >
+                <span className="link-icon">📊</span>
+                Estadísticas
+              </NavLink>
+
+              <div className="sidebar-section-title" style={{ marginTop: 16 }}>
+                Herramientas
+              </div>
+
+              <button className="sidebar-link" onClick={() => {/* TODO: browser */}}>
+                <span className="link-icon">🔍</span>
+                Explorar Tarjetas
+              </button>
+
+              <button className="sidebar-link" onClick={() => {/* TODO: settings */}}>
+                <span className="link-icon">⚙️</span>
+                Configuración
+              </button>
+            </nav>
+
+            <div className="sidebar-footer">
+              {user && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                  <div style={{
+                    width: 32, height: 32, borderRadius: '50%',
+                    background: 'linear-gradient(135deg, var(--accent-color), var(--purple-accent))',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '0.875rem', fontWeight: 700, flexShrink: 0
+                  }}>
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-main)', truncate: true, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name}</div>
+                    <div style={{ fontSize: '0.6875rem', color: 'var(--text-dim)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</div>
+                  </div>
+                </div>
+              )}
+              <button
+                id="logout-btn"
+                className="sidebar-link"
+                onClick={logout}
+                style={{ color: 'var(--danger-color)', width: '100%' }}
+              >
+                <span className="link-icon">🚪</span>
+                Cerrar sesión
+              </button>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 8 }}>
+                FlashForge v0.1.0
+              </div>
+            </div>
+          </aside>
+        )}
+
+        {/* Main Content */}
+        <main className={`main-content ${isStudyPage ? 'study-mode' : ''}`}
+          style={isStudyPage ? { marginLeft: 0, width: '100%', maxWidth: '100%' } : {}}
+        >
+          {children}
+        </main>
+      </div>
+
+      {/* Toast Notifications */}
+      {toasts.length > 0 && (
+        <div className="toast-container">
+          {toasts.map(toast => (
+            <div key={toast.id} className={`toast ${toast.type}`}>
+              <span>{toast.type === 'success' ? '✅' : toast.type === 'error' ? '❌' : 'ℹ️'}</span>
+              <span>{toast.message}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
+export default Layout;

@@ -1,0 +1,36 @@
+# ── Node / Frontend ───────────────────────────────────────────
+node_modules/
+dist/
+dev-dist/
+.vite/
+
+# ── Maven / Backend ───────────────────────────────────────────
+backend/target/
+backend/data/
+!backend/src/
+
+# ── IDEs ──────────────────────────────────────────────────────
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# ── Secrets / Env ─────────────────────────────────────────────
+.env
+.env.local
+.env.production
+application-prod.properties
+
+# ── OS ────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Logs ──────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── PWA auto-generated ────────────────────────────────────────
+public/sw.js
+public/workbox-*.js

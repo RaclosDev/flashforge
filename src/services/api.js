@@ -1,0 +1,88 @@
+/**
+ * FlashForge — API Service
+ * HTTP client for communicating with the Spring Boot backend.
+ */
+
+const API_BASE = '/api';
+
+export class ApiError extends Error {
+  constructor(message, status, data) {
+    super(message);
+    this.status = status;
+    this.data = data;
+  }
+}
+
+async function request(endpoint, options = {}) {
+  const url = `${API_BASE}${endpoint}`;
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+    ...options,
+  };
+
+  // Add auth token if available
+  const token = localStorage.getItem('ff_token');
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(url, config);
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new ApiError(
+      data.error || data.message || `HTTP ${response.status}`,
+      response.status,
+      data
+    );
+  }
+
+  // Handle 204 No Content
+  if (response.status === 204) return null;
+
+  return response.json();
+}
+
+// ── Auth ──────────────────────────────────────────────────────
+
+export const authApi = {
+  me: () => request('/auth/me'),
+};
+
+// ── Decks ─────────────────────────────────────────────────────
+
+export const decksApi = {
+  getAll: () => request('/decks'),
+  create: (data) => request('/decks', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/decks/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id) => request(`/decks/${id}`, { method: 'DELETE' }),
+};
+
+// ── Notes ─────────────────────────────────────────────────────
+
+export const notesApi = {
+  getByDeck: (deckId) => request(`/decks/${deckId}/notes`),
+  create: (data) => request('/notes', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/notes/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id) => request(`/notes/${id}`, { method: 'DELETE' }),
+};
+
+// ── Study ─────────────────────────────────────────────────────
+
+export const studyApi = {
+  getDueCards: (deckId, limit = 20) => request(`/decks/${deckId}/study?limit=${limit}`),
+  reviewCard: (cardId, data) => request(`/cards/${cardId}/review`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+};
+
+export default {
+  auth: authApi,
+  decks: decksApi,
+  notes: notesApi,
+  study: studyApi,
+};
