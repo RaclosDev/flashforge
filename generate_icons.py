@@ -32,9 +32,9 @@ def create_icon(size, output_path):
     print(f"Saved {output_path}")
 
 def main():
-    public_dir = r"C:\Users\raclo\.gemini\antigravity-ide\scratch\flashforge\public"
-    create_icon(192, os.path.join(public_dir, "flashforge-icon-192.png"))
-    create_icon(512, os.path.join(public_dir, "flashforge-icon-512.png"))
+    public_dir = r"C:\Users\raclo\.gemini\antigravity-ide\scratch\loopdeck\public"
+    create_icon(192, os.path.join(public_dir, "loopdeck-icon-192.png"))
+    create_icon(512, os.path.join(public_dir, "loopdeck-icon-512.png"))
 
 if __name__ == "__main__":
     main()
