@@ -2315,3 +2315,23 @@ textarea.glass-input {
   padding: 0;
 }
 
+
+@media (max-width: 768px) {
+  .docx-modal-body {
+    padding: 0px !important;
+  }
+  .docx-viewer-container {
+    padding: 0 !important;
+  }
+  .docx-wrapper {
+    padding: 10px !important;
+  }
+  .docx-wrapper > section.docx {
+    padding: 20px !important;
+    width: 100% !important;
+    min-height: auto !important;
+    box-shadow: none !important;
+    margin-bottom: 10px !important;
+  }
+}
+
