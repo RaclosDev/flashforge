@@ -11,6 +11,13 @@ const NOTE_TYPES = [
   { id: 'reverse', name: 'Básica + Reversa', description: 'Genera 2 tarjetas', fields: ['front', 'back'], cardsGenerated: 2 },
 ];
 
+const formatMovedText = (html) => {
+  const text = (html || '').replace(/<[^>]*>/g, '').trim();
+  if (!text) return '';
+  const titleCased = text.split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.toLowerCase().slice(1)).join(' ');
+  return `<div style="font-size: 1.25em; text-align: center;"><strong>${titleCased}</strong></div>`;
+};
+
 function AddCard() {
   const { deckId: paramDeckId } = useParams();
   const navigate = useNavigate();
@@ -74,7 +81,7 @@ function AddCard() {
       let imgHtml = `<img src="${compressedDataUrl}" style="max-width: 100%; border-radius: 8px; margin: 8px 0;" alt="Foto"/>`;
 
       if (fieldName === 'front') {
-        const currentFront = (fields.front || '').trim();
+        const currentFront = formatMovedText(fields.front);
         const newBack = fields.back ? `${fields.back}<br><br>${currentFront}` : currentFront;
         setFields(prev => ({ ...prev, front: imgHtml, back: newBack }));
         
@@ -113,7 +120,7 @@ function AddCard() {
     let imgHtml = `<img src="${url}" style="max-width: 100%; border-radius: 8px; margin: 8px 0;" alt="Selected image"/>`;
     
     if (activeImageField === 'front') {
-      const currentFront = (fields.front || '').trim();
+      const currentFront = formatMovedText(fields.front);
       const newBack = fields.back ? `${fields.back}<br><br>${currentFront}` : currentFront;
       setFields(prev => ({ ...prev, front: imgHtml, back: newBack }));
       
@@ -196,7 +203,7 @@ function AddCard() {
 
       let imgHtml = `<img src="${imageUrl}" style="max-width: 100%; border-radius: 8px; margin: 8px 0;" alt="" onerror="this.style.display='none'"/>`;
       
-      const currentFront = (fields.front || '').trim();
+      const currentFront = formatMovedText(fields.front);
       const newBack = fields.back ? `${fields.back}<br><br>${currentFront}` : currentFront;
       setFields(prev => ({ ...prev, front: imgHtml, back: newBack }));
       
