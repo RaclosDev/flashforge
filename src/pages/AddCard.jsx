@@ -71,16 +71,23 @@ function AddCard() {
     try {
       addToast('Comprimiendo imagen...', 'info');
       const compressedDataUrl = await compressImageFromPaste(file, 800, 0.75);
-      const imgHtml = `<br><img src="${compressedDataUrl}" style="max-width: 100%; border-radius: 8px; margin: 8px 0;" alt="Foto"/>`;
+      let imgHtml = `<img src="${compressedDataUrl}" style="max-width: 100%; border-radius: 8px; margin: 8px 0;" alt="Foto"/>`;
 
-      // Append image instead of replacing text
-      const newContent = (fields[fieldName] || '') + imgHtml;
-      setFields(prev => ({ ...prev, [fieldName]: newContent }));
-
-      // Update DOM directly
-      const els = document.querySelectorAll('.editor-content');
-      const idx = fieldName === 'front' ? 0 : 1;
-      if (els[idx]) els[idx].innerHTML = newContent;
+      if (fieldName === 'front') {
+        const currentFront = (fields.front || '').trim();
+        const newBack = fields.back ? `${fields.back}<br><br>${currentFront}` : currentFront;
+        setFields(prev => ({ ...prev, front: imgHtml, back: newBack }));
+        
+        const els = document.querySelectorAll('.editor-content');
+        if (els[0]) els[0].innerHTML = imgHtml;
+        if (els[1]) els[1].innerHTML = newBack;
+      } else {
+        const newContent = (fields[fieldName] || '') + `<br>${imgHtml}`;
+        setFields(prev => ({ ...prev, [fieldName]: newContent }));
+        const els = document.querySelectorAll('.editor-content');
+        const idx = fieldName === 'front' ? 0 : 1;
+        if (els[idx]) els[idx].innerHTML = newContent;
+      }
 
       addToast('📷 Imagen añadida', 'success');
     } catch (err) {
@@ -103,15 +110,22 @@ function AddCard() {
 
   const handleImageSelect = (url) => {
     if (!activeImageField) return;
-    const imgHtml = `<br><img src="${url}" style="max-width: 100%; border-radius: 8px; margin: 8px 0;" alt="Selected image"/>`;
+    let imgHtml = `<img src="${url}" style="max-width: 100%; border-radius: 8px; margin: 8px 0;" alt="Selected image"/>`;
     
-    // Append image instead of replacing
-    const newContent = (fields[activeImageField] || '') + imgHtml;
-    setFields(prev => ({ ...prev, [activeImageField]: newContent }));
-    
-    const els = document.querySelectorAll('.editor-content');
-    const idx = activeImageField === 'front' ? 0 : 1;
-    if (els[idx]) els[idx].innerHTML = newContent;
+    if (activeImageField === 'front') {
+      const currentFront = (fields.front || '').trim();
+      const newBack = fields.back ? `${fields.back}<br><br>${currentFront}` : currentFront;
+      setFields(prev => ({ ...prev, front: imgHtml, back: newBack }));
+      
+      const els = document.querySelectorAll('.editor-content');
+      if (els[0]) els[0].innerHTML = imgHtml;
+      if (els[1]) els[1].innerHTML = newBack;
+    } else {
+      const newContent = (fields[activeImageField] || '') + `<br>${imgHtml}`;
+      setFields(prev => ({ ...prev, [activeImageField]: newContent }));
+      const els = document.querySelectorAll('.editor-content');
+      if (els[1]) els[1].innerHTML = newContent;
+    }
     
     setActiveImageField(null);
   };
@@ -180,13 +194,15 @@ function AddCard() {
         return;
       }
 
-      const imgHtml = `<br><img src="${imageUrl}" style="max-width: 100%; border-radius: 8px; margin: 8px 0;" alt="" onerror="this.style.display='none'"/>`;
+      let imgHtml = `<img src="${imageUrl}" style="max-width: 100%; border-radius: 8px; margin: 8px 0;" alt="" onerror="this.style.display='none'"/>`;
       
-      const newFront = (fields.front || '') + imgHtml;
-      setFields(prev => ({ ...prev, front: newFront }));
+      const currentFront = (fields.front || '').trim();
+      const newBack = fields.back ? `${fields.back}<br><br>${currentFront}` : currentFront;
+      setFields(prev => ({ ...prev, front: imgHtml, back: newBack }));
       
       const els = document.querySelectorAll('.editor-content');
-      if (els[0]) els[0].innerHTML = newFront;
+      if (els[0]) els[0].innerHTML = imgHtml;
+      if (els[1]) els[1].innerHTML = newBack;
 
       addToast('📸 Foto automática añadida', 'success');
     } catch (err) {
