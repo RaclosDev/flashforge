@@ -96,9 +96,8 @@ function AddCard() {
   const handleOpenImageSearch = (fieldName) => {
     // Extract plain text from the field to use as initial query
     const text = (fields[fieldName] || '').replace(/<[^>]*>/g, '').trim();
-    const word = text.split(/\s+/)[0]; // take first word
 
-    setImageSearchQuery(word || '');
+    setImageSearchQuery(text || '');
     setActiveImageField(fieldName);
   };
 
