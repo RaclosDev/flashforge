@@ -120,7 +120,7 @@ function AddCard() {
   const handleDefinition = async () => {
     // Extract plain text from front field
     const text = (fields.front || '').replace(/<[^>]*>/g, '').trim();
-    const word = text.split(/\s+/)[0]; // take first word
+    const word = text;
 
     if (!word) {
       addToast('Escribe una palabra en el frente primero', 'warning');
@@ -164,7 +164,7 @@ function AddCard() {
     if (text.length > 30) {
       text = (fields.back || '').replace(/<[^>]*>/g, '').trim();
     }
-    const word = text.split(/\s+/)[0];
+    const word = text;
 
     if (!word) {
       addToast('Escribe una palabra primero', 'warning');
