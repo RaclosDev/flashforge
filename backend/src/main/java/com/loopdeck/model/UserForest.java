@@ -3,6 +3,7 @@ package com.loopdeck.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -40,9 +41,11 @@ public class UserForest {
     @Column(name = "mastered_decks", nullable = false)
     private Integer masteredDecks = 0;
 
+    @Builder.Default
     @OneToMany(mappedBy = "forestId", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ForestPlant> plants;
+    private List<ForestPlant> plants = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "forestId", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ForestUnlock> unlocks;
+    private List<ForestUnlock> unlocks = new ArrayList<>();
 }

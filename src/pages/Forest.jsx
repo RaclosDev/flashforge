@@ -36,7 +36,7 @@ function Forest() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <h1 style={{ margin: 0, fontSize: '1.8rem' }}>🌲 Mi Bosque</h1>
           <span style={{ color: 'var(--text-dim)', fontSize: '0.9rem' }}>
-            {forest.unlocksReached?.length || 0} hitos alcanzados
+            {forest.unlocks?.length || 0} hitos alcanzados
           </span>
         </div>
         <div className="light-points">
@@ -45,8 +45,8 @@ function Forest() {
         </div>
       </div>
 
-      {forest.sinceLastVisit && (
-        <ForestSummaryBanner summary={forest.sinceLastVisit} />
+      {forest.summary && (
+        <ForestSummaryBanner summary={forest.summary} />
       )}
 
       <div className="forest-scene-wrapper">
