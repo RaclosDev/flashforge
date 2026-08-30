@@ -199,8 +199,9 @@ public class FarmService {
         
         // Record in Silo (Stats)
         FarmHarvest siloRecord = harvestRepo.findByFarmIdAndCropId(farm.getId(), crop.id())
-            .orElseGet(() -> FarmHarvest.builder().farmId(farm.getId()).cropId(crop.id()).quantity(0).build());
+            .orElseGet(() -> FarmHarvest.builder().farmId(farm.getId()).cropId(crop.id()).quantity(0).sellValue(0).build());
         siloRecord.setQuantity(siloRecord.getQuantity() + 1);
+        siloRecord.setSellValue(siloRecord.getSellValue() + sellValue);
         harvestRepo.save(siloRecord);
 
         int newXp = farm.getFarmXp() + xpEarned;
@@ -254,8 +255,9 @@ public class FarmService {
 
                 // Record in Silo
                 FarmHarvest siloRecord = harvestRepo.findByFarmIdAndCropId(farm.getId(), crop.id())
-                    .orElseGet(() -> FarmHarvest.builder().farmId(farm.getId()).cropId(crop.id()).quantity(0).build());
+                    .orElseGet(() -> FarmHarvest.builder().farmId(farm.getId()).cropId(crop.id()).quantity(0).sellValue(0).build());
                 siloRecord.setQuantity(siloRecord.getQuantity() + 1);
+                siloRecord.setSellValue(siloRecord.getSellValue() + sellValue);
                 harvestRepo.save(siloRecord);
 
                 plot.setStatus("empty");

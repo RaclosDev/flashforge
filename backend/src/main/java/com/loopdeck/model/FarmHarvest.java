@@ -21,9 +21,11 @@ public class FarmHarvest {
     @Column(name = "crop_id", nullable = false)
     private String cropId;
 
+    @Builder.Default
     @Column(name = "quantity", nullable = false)
     private Integer quantity = 0;
 
+    @Builder.Default
     @Column(name = "sell_value", nullable = false)
     private Integer sellValue = 0;
 }
