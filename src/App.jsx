@@ -16,7 +16,7 @@ import AuthPage from './pages/AuthPage';
 import Browser from './pages/Browser';
 import Settings from './pages/Settings';
 import Templates from './pages/Templates';
-import Farm from './pages/Farm';
+import Forest from './pages/Forest';
 import useAuthStore from './store/useAuthStore';
 import useStore from './store/useStore';
 
@@ -82,7 +82,7 @@ function App() {
                   <Route path="/browser" element={<Browser />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="/templates" element={<Templates />} />
-                  <Route path="/farm" element={<Farm />} />
+                  <Route path="/forest" element={<Forest />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </Layout>
