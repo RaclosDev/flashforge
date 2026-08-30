@@ -18,6 +18,14 @@ function Forest() {
     }
   }, [user, fetchForest, fetchAvailableSpecies]);
 
+  if (error) {
+    return (
+      <div className="forest-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '400px', color: 'var(--danger-color)' }}>
+        <div>Error al cargar el bosque: {error}</div>
+      </div>
+    );
+  }
+
   if (loading || !forest) {
     return (
       <div className="forest-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '400px' }}>
