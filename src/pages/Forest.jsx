@@ -20,8 +20,8 @@ function Forest() {
 
   if (loading || !forest) {
     return (
-      <div className="forest-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="spinner" />
+      <div className="forest-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '400px' }}>
+        <div style={{ color: 'var(--text-dim)' }}>Cargando bosque... <span className="spinner-sm" style={{marginLeft: '10px'}} /></div>
       </div>
     );
   }

@@ -16,8 +16,9 @@ public class ForestUnlock {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "forest_id", nullable = false)
-    private Long forestId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "forest_id", nullable = false)
+    private UserForest forest;
 
     @Column(name = "unlock_id", nullable = false)
     private String unlockId;

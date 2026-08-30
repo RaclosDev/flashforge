@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface ForestUnlockRepository extends JpaRepository<ForestUnlock, Long> {
-    List<ForestUnlock> findByForestId(Long forestId);
+    List<ForestUnlock> findByForest_Id(Long forestId);
 }

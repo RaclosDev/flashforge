@@ -33,7 +33,7 @@ public class ForestService {
             
             // Plant initial pine tree
             ForestPlant initialPlant = ForestPlant.builder()
-                .forestId(newForest.getId())
+                .forest(newForest)
                 .speciesId("pine")
                 .plantedAt(Instant.now().minus(Duration.ofDays(10))) // Already mature
                 .maturesAt(Instant.now().minus(Duration.ofDays(7)))
@@ -51,7 +51,7 @@ public class ForestService {
         UserForest forest = getOrCreateForest(userId);
         Instant now = Instant.now();
         
-        List<ForestPlant> plants = plantRepo.findByForestId(forest.getId());
+        List<ForestPlant> plants = plantRepo.findByForest_Id(forest.getId());
         
         List<SummaryEventDto> maturedSummary = new ArrayList<>();
         List<SummaryEventDto> harvestedSummary = new ArrayList<>();
@@ -89,7 +89,7 @@ public class ForestService {
         plantRepo.saveAll(plants);
         
         // Unlocks check
-        List<ForestUnlock> unlocks = unlockRepo.findByForestId(forest.getId());
+        List<ForestUnlock> unlocks = unlockRepo.findByForest_Id(forest.getId());
         List<String> recentUnlocks = checkMilestones(userId, forest, unlocks);
         
         ForestSummaryDto summary = null;
@@ -135,7 +135,7 @@ public class ForestService {
         Instant maturesAt = now.plus(Duration.ofHours(def.maturationHours()));
 
         ForestPlant newPlant = ForestPlant.builder()
-            .forestId(forest.getId())
+            .forest(forest)
             .speciesId(speciesId)
             .plantedAt(now)
             .maturesAt(maturesAt)
@@ -150,7 +150,7 @@ public class ForestService {
 
     public List<AvailableSpeciesDto> getAvailableSpecies(String userId) {
         UserForest forest = getOrCreateForest(userId);
-        List<ForestUnlock> unlocks = unlockRepo.findByForestId(forest.getId());
+        List<ForestUnlock> unlocks = unlockRepo.findByForest_Id(forest.getId());
         Set<String> unlockedReqs = new HashSet<>();
         unlockedReqs.add("default");
         for (ForestUnlock u : unlocks) {
@@ -180,7 +180,7 @@ public class ForestService {
 
         for (ForestSpeciesConfig.UnlockDef def : ForestSpeciesConfig.getAllDecorations().values()) {
             if (!unlockedSet.contains(def.requirement()) && checkCondition(def.requirement(), streak, cards, decks)) {
-                ForestUnlock u = ForestUnlock.builder().forestId(forest.getId()).unlockId(def.requirement()).build();
+                ForestUnlock u = ForestUnlock.builder().forest(forest).unlockId(def.requirement()).build();
                 unlockRepo.save(u);
                 unlockedSet.add(def.requirement());
                 newUnlocks.add(def.name());
@@ -189,7 +189,7 @@ public class ForestService {
         // Also check species that have requirements
         for (ForestSpeciesConfig.SpeciesDef def : ForestSpeciesConfig.getAllSpecies().values()) {
             if (!"default".equals(def.unlockRequirement()) && !unlockedSet.contains(def.unlockRequirement()) && checkCondition(def.unlockRequirement(), streak, cards, decks)) {
-                ForestUnlock u = ForestUnlock.builder().forestId(forest.getId()).unlockId(def.unlockRequirement()).build();
+                ForestUnlock u = ForestUnlock.builder().forest(forest).unlockId(def.unlockRequirement()).build();
                 unlockRepo.save(u);
                 unlockedSet.add(def.unlockRequirement());
                 newUnlocks.add(def.name());
