@@ -14,8 +14,11 @@ function Forest() {
 
   useEffect(() => {
     if (user) {
-      fetchForest();
-      fetchAvailableSpecies();
+      const load = async () => {
+        await fetchForest();
+        await fetchAvailableSpecies();
+      };
+      load();
     }
   }, [user, fetchForest, fetchAvailableSpecies]);
 
