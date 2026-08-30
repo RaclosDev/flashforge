@@ -372,9 +372,9 @@ function ShopTab({ coins, farmLevel, ownedTools, ownedDecorations, onBuyItem, on
       </div>
 
       {subTab === 'items' && (
-        <div className="farm-shop__list">
+        <div className="farm-shop__grid">
           {ITEMS.map(item => (
-            <div key={item.id} className="farm-shop__item">
+            <div key={item.id} className="farm-shop__item" title={item.desc}>
               <span className="farm-shop__item-emoji">{item.emoji}</span>
               <div className="farm-shop__item-info">
                 <div className="farm-shop__item-name">{item.name}</div>
@@ -391,18 +391,18 @@ function ShopTab({ coins, farmLevel, ownedTools, ownedDecorations, onBuyItem, on
       )}
 
       {subTab === 'tools' && (
-        <div className="farm-shop__list">
+        <div className="farm-shop__grid">
           {TOOLS.map(tool => {
             const owned = ownedTools.includes(tool.id);
             return (
-              <div key={tool.id} className={`farm-shop__item ${owned ? 'farm-shop__item--owned' : ''}`}>
+              <div key={tool.id} className={`farm-shop__item ${owned ? 'farm-shop__item--owned' : ''}`} title={tool.desc}>
                 <span className="farm-shop__item-emoji">{tool.emoji}</span>
                 <div className="farm-shop__item-info">
                   <div className="farm-shop__item-name">{tool.name}</div>
                   <div className="farm-shop__item-desc">{tool.desc}</div>
                 </div>
                 {owned ? (
-                  <span className="farm-shop__owned-badge">✅ Comprada</span>
+                  <span className="farm-shop__owned-badge">✅ Obtenido</span>
                 ) : (
                   <button className="primary-btn farm-shop__buy-btn"
                           disabled={coins < tool.cost}
@@ -417,7 +417,7 @@ function ShopTab({ coins, farmLevel, ownedTools, ownedDecorations, onBuyItem, on
       )}
 
       {subTab === 'decorations' && (
-        <div className="farm-shop__list">
+        <div className="farm-shop__grid">
           {DECORATIONS.map(deco => {
             const owned = ownedDecorations.includes(deco.id);
             return (
@@ -427,7 +427,7 @@ function ShopTab({ coins, farmLevel, ownedTools, ownedDecorations, onBuyItem, on
                   <div className="farm-shop__item-name">{deco.name}</div>
                 </div>
                 {owned ? (
-                  <span className="farm-shop__owned-badge">✅ Comprada</span>
+                  <span className="farm-shop__owned-badge">✅ Obtenido</span>
                 ) : (
                   <button className="primary-btn farm-shop__buy-btn"
                           disabled={coins < deco.cost}
@@ -449,24 +449,28 @@ function InventoryTab({ inventory }) {
   if (!inventory || inventory.length === 0) {
     return (
       <div className="farm-inventory-empty">
-        <div style={{ fontSize: '3rem', marginBottom: 16 }}>📦</div>
-        <p>Tu inventario está vacío.</p>
-        <p style={{ color: 'var(--text-dim)', fontSize: '0.9rem' }}>Compra items en la tienda para usarlos en tus cultivos.</p>
+        <div style={{ fontSize: '3.5rem', marginBottom: 16, opacity: 0.8 }}>📦</div>
+        <p style={{ fontSize: '1.2rem', fontWeight: 600 }}>Tu inventario está vacío.</p>
+        <p style={{ color: 'var(--text-dim)', fontSize: '0.95rem', marginTop: 8 }}>Compra fertilizantes y otros items en la Tienda para acelerar el crecimiento de tus cultivos y maximizar tus ganancias.</p>
       </div>
     );
   }
 
   return (
-    <div className="farm-shop__list">
-      {inventory.map(item => (
-        <div key={item.itemId} className="farm-shop__item">
-          <span className="farm-shop__item-emoji">{item.emoji}</span>
-          <div className="farm-shop__item-info">
-            <div className="farm-shop__item-name">{item.name}</div>
+    <div className="farm-shop__grid">
+      {inventory.map(item => {
+        const itemDef = ITEMS.find(i => i.id === item.itemId) || {};
+        return (
+          <div key={item.itemId} className="farm-shop__item" title={itemDef.desc || ''}>
+            <span className="farm-shop__item-emoji">{item.emoji}</span>
+            <div className="farm-shop__item-info">
+              <div className="farm-shop__item-name">{item.name}</div>
+              {itemDef.desc && <div className="farm-shop__item-desc">{itemDef.desc}</div>}
+            </div>
+            <span className="farm-inventory__qty">x{item.quantity}</span>
           </div>
-          <span className="farm-inventory__qty">x{item.quantity}</span>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

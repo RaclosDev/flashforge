@@ -477,10 +477,10 @@
   border-color: var(--accent-color);
 }
 
-.farm-shop__list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.farm-shop__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
 }
 
 .farm-shop__item {
