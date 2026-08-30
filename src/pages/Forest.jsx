@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import useForestStore from '../store/useForestStore';
 import useStore from '../store/useStore';
+import useAuthStore from '../store/useAuthStore';
 import ForestScene from '../components/ForestScene';
 import ForestSummaryBanner from '../components/ForestSummaryBanner';
 import SeedChoiceModal from '../components/SeedChoiceModal';
 import './Forest.css';
 
 function Forest() {
-  const { forest, loading, fetchForest, fetchAvailableSpecies } = useForestStore();
-  const { user } = useStore();
+  const { forest, loading, error, fetchForest, fetchAvailableSpecies } = useForestStore();
+  const { user } = useAuthStore();
   const [showSeedModal, setShowSeedModal] = useState(false);
 
   useEffect(() => {
