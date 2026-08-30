@@ -373,20 +373,26 @@ function ShopTab({ coins, farmLevel, ownedTools, ownedDecorations, onBuyItem, on
 
       {subTab === 'items' && (
         <div className="farm-shop__grid">
-          {ITEMS.map(item => (
-            <div key={item.id} className="farm-shop__item" title={item.desc}>
-              <span className="farm-shop__item-emoji">{item.emoji}</span>
-              <div className="farm-shop__item-info">
-                <div className="farm-shop__item-name">{item.name}</div>
-                <div className="farm-shop__item-desc">{item.desc}</div>
+          {ITEMS.map(item => {
+            let cost = item.cost;
+            if (ownedTools.includes('well') && item.id.startsWith('fertilizer')) {
+              cost = Math.floor(cost * 0.7); // -30% discount
+            }
+            return (
+              <div key={item.id} className="farm-shop__item" title={item.desc}>
+                <span className="farm-shop__item-emoji">{item.emoji}</span>
+                <div className="farm-shop__item-info">
+                  <div className="farm-shop__item-name">{item.name}</div>
+                  <div className="farm-shop__item-desc">{item.desc}</div>
+                </div>
+                <button className="primary-btn farm-shop__buy-btn"
+                        disabled={coins < cost}
+                        onClick={() => onBuyItem(item.id)}>
+                  🪙 {cost} {cost < item.cost && <span style={{ fontSize: '0.7rem', color: '#4ade80' }}>(-30%)</span>}
+                </button>
               </div>
-              <button className="primary-btn farm-shop__buy-btn"
-                      disabled={coins < item.cost}
-                      onClick={() => onBuyItem(item.id)}>
-                🪙 {item.cost}
-              </button>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -688,6 +694,7 @@ export default function Farm() {
             { id: 'plots', label: '🌱 Parcelas' },
             { id: 'shop', label: '🛍️ Tienda' },
             { id: 'inventory', label: '📦 Inventario' },
+            ...(farm?.ownedTools?.includes('silo') ? [{ id: 'silo', label: '🏗️ Silo (Stats)' }] : [])
           ].map(t => (
             <button key={t.id}
               className={`farm-tab ${tab === t.id ? 'farm-tab--active' : ''}`}
@@ -700,6 +707,30 @@ export default function Farm() {
           ))}
         </div>
       </div>
+
+      {/* Silo Tab */}
+      {tab === 'silo' && (
+        <div className="farm-shop__grid">
+          {(!farm.silo || farm.silo.length === 0) ? (
+             <div className="farm-inventory-empty" style={{gridColumn: '1 / -1'}}>
+               <div style={{ fontSize: '3.5rem', marginBottom: 16, opacity: 0.8 }}>🏗️</div>
+               <p style={{ fontSize: '1.2rem', fontWeight: 600 }}>El Silo está vacío.</p>
+               <p style={{ color: 'var(--text-dim)', fontSize: '0.95rem', marginTop: 8 }}>Cosecha cultivos para ir llenando tus estadísticas históricas.</p>
+             </div>
+          ) : (
+            farm.silo.sort((a, b) => b.quantity - a.quantity).map(item => (
+              <div key={item.cropId} className="farm-shop__item">
+                <span className="farm-shop__item-emoji">{item.emoji}</span>
+                <div className="farm-shop__item-info">
+                  <div className="farm-shop__item-name">{item.name}</div>
+                  <div className="farm-shop__item-desc">Cosechas totales</div>
+                </div>
+                <span className="farm-inventory__qty" style={{color: '#ffd700'}}>x{item.quantity}</span>
+              </div>
+            ))
+          )}
+        </div>
+      )}
 
       {/* Plots Tab */}
       {tab === 'plots' && (
@@ -734,11 +765,11 @@ export default function Farm() {
             {farm?.ownedDecorations?.includes('stone_path') && <div className="farm-deco--path"></div>}
           </div>
 
-          {readyCount >= 2 && (
+          {readyCount >= 2 && farm?.ownedTools?.includes('tractor') && (
             <button className="farm-harvest-all-btn primary-btn"
                     disabled={busy}
                     onClick={handleHarvestAll}>
-              🌾 Cosechar Todo ({readyCount})
+              🚜 Cosechar Todo ({readyCount})
             </button>
           )}
         </div>

@@ -39,7 +39,9 @@ public class FarmService {
 
     public record InventoryItemDto(String itemId, String name, String emoji, int quantity) {}
 
-    public record FarmViewDto(FarmDto farm, List<PlotDto> plots, List<InventoryItemDto> inventory) {}
+    public record SiloItemDto(String cropId, String name, String emoji, int quantity) {}
+
+    public record FarmViewDto(FarmDto farm, List<PlotDto> plots, List<InventoryItemDto> inventory, List<SiloItemDto> silo) {}
 
     public record HarvestResultDto(int coinsEarned, int xpEarned, int totalCoins, String cropName, boolean leveledUp, int newLevel) {}
 
@@ -67,7 +69,7 @@ public class FarmService {
         List<FarmPlot> plots = plotRepo.findByFarmIdOrderByPlotIndex(farm.getId());
         boolean hasWateringCan = hasTool(farm, "watering_can");
         for (FarmPlot plot : plots) {
-            updatePlotStatus(plot, hasWateringCan);
+            updatePlotStatus(plot, farm);
         }
         plotRepo.saveAll(plots);
 
@@ -85,7 +87,7 @@ public class FarmService {
         List<PlotDto> plotDtos = new ArrayList<>();
         // Add unlocked plots
         for (FarmPlot plot : plots) {
-            plotDtos.add(toPlotDto(plot));
+            plotDtos.add(toPlotDto(plot, farm));
         }
         // Add locked plots (up to 20 max)
         for (int i = farm.getTotalPlotsUnlocked(); i < 20; i++) {
@@ -107,7 +109,20 @@ public class FarmService {
                 );
             }).toList();
 
-        return new FarmViewDto(farmDto, plotDtos, invDtos);
+        List<FarmHarvest> harvests = harvestRepo.findByFarmId(farm.getId());
+        List<SiloItemDto> siloDtos = harvests.stream()
+            .filter(h -> h.getQuantity() > 0)
+            .map(h -> {
+                CropDef def = FarmCropConfig.getCrop(h.getCropId());
+                return new SiloItemDto(
+                    h.getCropId(),
+                    def != null ? def.name() : h.getCropId(),
+                    def != null ? def.emoji() : "🌾",
+                    h.getQuantity()
+                );
+            }).toList();
+
+        return new FarmViewDto(farmDto, plotDtos, invDtos, siloDtos);
     }
 
     // ── Plant ─────────────────────────────────────────────────────
@@ -146,7 +161,7 @@ public class FarmService {
         plot.setHasGoldenCompost(false);
         plotRepo.save(plot);
 
-        return toPlotDto(plot);
+        return toPlotDto(plot, farm);
     }
 
     // ── Harvest ───────────────────────────────────────────────────
@@ -160,7 +175,7 @@ public class FarmService {
             .orElseThrow(() -> new IllegalArgumentException("Parcela no encontrada"));
 
         // Auto-update status
-        updatePlotStatus(plot, hasTool(farm, "watering_can"));
+        updatePlotStatus(plot, farm);
 
         String status = plot.getStatus();
         if (!"ready".equals(status) && !"wilting".equals(status))
@@ -181,6 +196,12 @@ public class FarmService {
         int newCoins = (user.getPoints() != null ? user.getPoints() : 0) + sellValue;
         user.setPoints(newCoins);
         userRepo.save(user);
+        
+        // Record in Silo (Stats)
+        FarmHarvest siloRecord = harvestRepo.findByFarmIdAndCropId(farm.getId(), crop.id())
+            .orElseGet(() -> FarmHarvest.builder().farmId(farm.getId()).cropId(crop.id()).quantity(0).build());
+        siloRecord.setQuantity(siloRecord.getQuantity() + 1);
+        harvestRepo.save(siloRecord);
 
         int newXp = farm.getFarmXp() + xpEarned;
         farm.setFarmXp(newXp);
@@ -217,7 +238,7 @@ public class FarmService {
         int harvested = 0;
 
         for (FarmPlot plot : plots) {
-            updatePlotStatus(plot, hasWateringCan);
+            updatePlotStatus(plot, farm);
             if ("ready".equals(plot.getStatus()) || "wilting".equals(plot.getStatus())) {
                 CropDef crop = FarmCropConfig.getCrop(plot.getCropId());
                 if (crop == null) continue;
@@ -230,6 +251,12 @@ public class FarmService {
                 totalCoins += sellValue;
                 totalXp += crop.xpReward();
                 harvested++;
+
+                // Record in Silo
+                FarmHarvest siloRecord = harvestRepo.findByFarmIdAndCropId(farm.getId(), crop.id())
+                    .orElseGet(() -> FarmHarvest.builder().farmId(farm.getId()).cropId(crop.id()).quantity(0).build());
+                siloRecord.setQuantity(siloRecord.getQuantity() + 1);
+                harvestRepo.save(siloRecord);
 
                 plot.setStatus("empty");
                 plot.setCropId(null);
@@ -564,9 +591,17 @@ public class FarmService {
             .orElseGet(() -> createFarmForUser(userId));
     }
 
-    private void updatePlotStatus(FarmPlot plot, boolean hasWateringCan) {
+    private void updatePlotStatus(FarmPlot plot, UserFarm farm) {
         if (plot.getReadyAt() == null) return;
         Instant now = Instant.now();
+
+        boolean hasWateringCan = hasTool(farm, "watering_can");
+        boolean hasScarecrow = hasTool(farm, "scarecrow");
+        boolean hasGreenhouse = hasTool(farm, "greenhouse");
+
+        boolean isProtected = false;
+        if (hasScarecrow && plot.getPlotIndex() == 0) isProtected = true;
+        if (hasGreenhouse && (plot.getPlotIndex() == 0 || plot.getPlotIndex() == 1)) isProtected = true;
 
         if ("growing".equals(plot.getStatus()) && !now.isBefore(plot.getReadyAt())) {
             plot.setStatus("ready");
@@ -577,7 +612,7 @@ public class FarmService {
             long wiltThreshold = hasWateringCan ? 36 : 24;
             long deadThreshold = hasWateringCan ? 84 : 72;
 
-            if (Boolean.TRUE.equals(plot.getIsProtected())) return; // Protected plots don't wilt
+            if (isProtected || Boolean.TRUE.equals(plot.getIsProtected())) return; // Protected plots don't wilt
 
             if (hoursSinceReady >= deadThreshold) {
                 plot.setStatus("dead");
@@ -587,11 +622,17 @@ public class FarmService {
         }
     }
 
-    private PlotDto toPlotDto(FarmPlot plot) {
+    private PlotDto toPlotDto(FarmPlot plot, UserFarm farm) {
         CropDef crop = plot.getCropId() != null ? FarmCropConfig.getCrop(plot.getCropId()) : null;
 
         Double progress = null;
         int sellValue = 0;
+        
+        boolean hasScarecrow = hasTool(farm, "scarecrow");
+        boolean hasGreenhouse = hasTool(farm, "greenhouse");
+        boolean isProtected = Boolean.TRUE.equals(plot.getIsProtected());
+        if (hasScarecrow && plot.getPlotIndex() == 0) isProtected = true;
+        if (hasGreenhouse && (plot.getPlotIndex() == 0 || plot.getPlotIndex() == 1)) isProtected = true;
 
         if (crop != null && plot.getPlantedAt() != null && plot.getReadyAt() != null) {
             long total = Duration.between(plot.getPlantedAt(), plot.getReadyAt()).toMillis();
@@ -615,7 +656,7 @@ public class FarmService {
             sellValue,
             Boolean.TRUE.equals(plot.getHasFertilizer()),
             Boolean.TRUE.equals(plot.getHasGoldenCompost()),
-            Boolean.TRUE.equals(plot.getIsProtected()),
+            isProtected,
             null, null
         );
     }
