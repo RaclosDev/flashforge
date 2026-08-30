@@ -15,8 +15,31 @@ public class ForestController {
     private final ForestService forestService;
 
     @GetMapping
-    public ResponseEntity<ForestService.ForestViewDto> getForest(Authentication auth) {
-        return ResponseEntity.ok(forestService.getForestView(auth.getName()));
+    public ResponseEntity<?> getForest(Authentication auth) {
+        try {
+            return ResponseEntity.ok(forestService.getForestView(auth.getName()));
+        } catch (Exception e) {
+            java.io.StringWriter sw = new java.io.StringWriter();
+            e.printStackTrace(new java.io.PrintWriter(sw));
+            return ResponseEntity.status(500).body(java.util.Map.of(
+                "error", e.getMessage(),
+                "stack", sw.toString()
+            ));
+        }
+    }
+
+    @GetMapping("/test/{userId}")
+    public ResponseEntity<?> testForest(@PathVariable String userId) {
+        try {
+            return ResponseEntity.ok(forestService.getOrCreateForest(userId));
+        } catch (Exception e) {
+            java.io.StringWriter sw = new java.io.StringWriter();
+            e.printStackTrace(new java.io.PrintWriter(sw));
+            return ResponseEntity.status(500).body(java.util.Map.of(
+                "error", e.getMessage(),
+                "stack", sw.toString()
+            ));
+        }
     }
 
     public record PlantSeedRequest(String speciesId) {}
