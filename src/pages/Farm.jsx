@@ -306,7 +306,7 @@ function PlotActionModal({ show, plot, inventory, onClose, onHarvest, onUseItem,
             <div style={{ textAlign: 'center', fontSize: '1.2rem', margin: '16px 0' }}>
               Valor: <b style={{ color: '#ffd700' }}>🪙 {plot.sellValue}</b>
             </div>
-            <button className="primary-btn" style={{ width: '100%' }} onClick={() => onHarvest(plot.index)}>
+            <button className="primary-btn" style={{ width: '100%' }} onClick={(e) => onHarvest(plot.index, e)}>
               🌾 Cosechar
             </button>
           </>
@@ -319,7 +319,7 @@ function PlotActionModal({ show, plot, inventory, onClose, onHarvest, onUseItem,
               ⚠️ Valor reducido: <b>🪙 {plot.sellValue}</b>
             </div>
             <div className="farm-modal__actions">
-              <button className="primary-btn" onClick={() => onHarvest(plot.index)}>
+              <button className="primary-btn" onClick={(e) => onHarvest(plot.index, e)}>
                 🌾 Cosechar (-50%)
               </button>
               {hasRevSmall && (
@@ -515,28 +515,55 @@ export default function Farm() {
     }
   };
 
-  const handleHarvest = async (plotIndex) => {
+  const handleHarvest = async (plotIndex, e) => {
     setBusy(true);
     try {
       const result = await harvest(plotIndex);
       setActionPlot(null);
+
+      // Spawn coins animation
+      if (e) {
+        spawnCoins(e.clientX, e.clientY, result.coinsEarned);
+      }
+
       addToast(`🌾 +${result.coinsEarned} monedas, +${result.xpEarned} XP${result.leveledUp ? ` ¡NIVEL ${result.newLevel}! 🎉` : ''}`, 'success');
       if (user) updateUser({ ...user, points: result.totalCoins });
-    } catch (e) {
-      addToast(e.message, 'error');
+    } catch (err) {
+      addToast(err.message, 'error');
     } finally {
       setBusy(false);
     }
   };
 
-  const handleHarvestAll = async () => {
+  const spawnCoins = (x, y, amount) => {
+    const container = document.body;
+    for (let i = 0; i < Math.min(amount, 10); i++) {
+      const coin = document.createElement('div');
+      coin.className = 'floating-coin';
+      coin.innerText = '🪙';
+      coin.style.left = `${x + (Math.random() * 40 - 20)}px`;
+      coin.style.top = `${y + (Math.random() * 40 - 20)}px`;
+      container.appendChild(coin);
+      
+      setTimeout(() => {
+        coin.remove();
+      }, 1000);
+    }
+  };
+
+  const handleHarvestAll = async (e) => {
     setBusy(true);
     try {
       const result = await harvestAll();
+      
+      if (e) {
+        spawnCoins(e.clientX, e.clientY, result.totalCoinsEarned);
+      }
+
       addToast(`🌾 ¡${result.harvested} cosechas! +${result.totalCoinsEarned} monedas, +${result.totalXpEarned} XP${result.leveledUp ? ` ¡NIVEL ${result.newLevel}! 🎉` : ''}`, 'success');
       if (user) updateUser({ ...user, points: result.totalCoins });
-    } catch (e) {
-      addToast(e.message, 'error');
+    } catch (err) {
+      addToast(err.message, 'error');
     } finally {
       setBusy(false);
     }
@@ -676,7 +703,15 @@ export default function Farm() {
 
       {/* Plots Tab */}
       {tab === 'plots' && (
-        <>
+        <div className={`farm-environment ${farm?.ownedDecorations?.includes('wooden_fence') ? 'farm-env--fenced' : ''}`}>
+          
+          {/* Top Decorations */}
+          <div className="farm-env__top-decos">
+            {farm?.ownedDecorations?.includes('fountain') && <span className="farm-deco" title="Fuente">⛲</span>}
+            {farm?.ownedDecorations?.includes('lantern') && <span className="farm-deco" title="Farola">🏮</span>}
+            {farm?.ownedDecorations?.includes('flower_arch') && <span className="farm-deco" title="Arco de Flores">🌸</span>}
+          </div>
+
           <div className="farm-grid">
             {plots.map(plot => (
               <FarmPlotCard
@@ -685,11 +720,18 @@ export default function Farm() {
                 coins={coins}
                 farmLevel={level}
                 onPlant={() => setCropSelector(plot.index)}
-                onHarvest={() => handleHarvest(plot.index)}
+                onHarvest={(e) => handleHarvest(plot.index, e)}
                 onAction={() => setActionPlot(plot)}
                 onBuyPlot={handleBuyPlot}
               />
             ))}
+          </div>
+
+          {/* Bottom Decorations */}
+          <div className="farm-env__bottom-decos">
+            {farm?.ownedDecorations?.includes('garden_bench') && <span className="farm-deco" title="Banco">🪑</span>}
+            {farm?.ownedDecorations?.includes('duck_pond') && <span className="farm-deco" title="Estanque">🦆</span>}
+            {farm?.ownedDecorations?.includes('stone_path') && <div className="farm-deco--path"></div>}
           </div>
 
           {readyCount >= 2 && (
@@ -699,7 +741,7 @@ export default function Farm() {
               🌾 Cosechar Todo ({readyCount})
             </button>
           )}
-        </>
+        </div>
       )}
 
       {/* Shop Tab */}
