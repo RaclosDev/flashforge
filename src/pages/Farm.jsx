@@ -4,12 +4,14 @@ import useAuthStore from '../store/useAuthStore';
 import FarmGrid from '../components/FarmGrid';
 import FarmSummaryBanner from '../components/FarmSummaryBanner';
 import SeedChoiceModal from '../components/SeedChoiceModal';
+import FarmInfoModal from '../components/FarmInfoModal';
 import './Farm.css';
 
 function Farm() {
   const { farm, loading, error, fetchFarm, fetchAvailableCrops } = useFarmStore();
   const { user } = useAuthStore();
   const [showSeedModal, setShowSeedModal] = useState(false);
+  const [showInfoModal, setShowInfoModal] = useState(false);
   const [selectedPlotIndex, setSelectedPlotIndex] = useState(null);
 
   useEffect(() => {
@@ -52,7 +54,16 @@ function Farm() {
         <div className="farm-header-title">
           <span className="emoji-icon">🧑‍🌾</span>
           <div>
-            <h1>Mi Granja</h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <h1>Mi Granja</h1>
+              <button 
+                className="btn-secondary" 
+                style={{ padding: '0.2rem 0.5rem', fontSize: '0.8rem', borderRadius: '8px' }}
+                onClick={() => setShowInfoModal(true)}
+              >
+                ℹ️ Cómo funciona
+              </button>
+            </div>
             <p>{farm.totalPlotsUnlocked} parcelas desbloqueadas. La granja crece sola mientras estudias.</p>
           </div>
         </div>
@@ -103,6 +114,10 @@ function Farm() {
           onClose={() => setShowSeedModal(false)} 
           selectedPlotIndex={selectedPlotIndex}
         />
+      )}
+
+      {showInfoModal && (
+        <FarmInfoModal onClose={() => setShowInfoModal(false)} />
       )}
     </div>
   );
