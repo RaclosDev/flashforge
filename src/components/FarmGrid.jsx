@@ -1,5 +1,5 @@
 import React from 'react';
-import './Farm.css';
+import '../pages/Farm.css';
 
 const FarmGrid = ({ plots = [], onPlotClick }) => {
   return (
