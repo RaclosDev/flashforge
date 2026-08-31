@@ -57,8 +57,8 @@ function Farm() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <h1>Mi Granja</h1>
               <button 
-                className="btn-secondary" 
-                style={{ padding: '0.2rem 0.5rem', fontSize: '0.8rem', borderRadius: '8px' }}
+                className="glass-btn" 
+                style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}
                 onClick={() => setShowInfoModal(true)}
               >
                 ℹ️ Cómo funciona
@@ -95,9 +95,9 @@ function Farm() {
 
         {/* RIGHT COLUMN: REWARDS / MILESTONES (Optional placeholder) */}
         <div className="farm-info-panel">
-          <div className="glass-panel" style={{height: '100%'}}>
-            <h3>Progreso</h3>
-            <p style={{color: 'var(--text-dim)', fontSize: '0.9rem', marginTop: '1rem'}}>
+          <div className="glass-panel" style={{height: '100%', padding: 'var(--spacing-xl)', display: 'flex', flexDirection: 'column'}}>
+            <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>Progreso</h3>
+            <p style={{color: 'var(--text-dim)', fontSize: '0.95rem', lineHeight: '1.5'}}>
               Estudia tarjetas y completa mazos para desbloquear nuevas parcelas, cultivos y decoraciones.
             </p>
             {farm.pendingSeeds > 0 && (
