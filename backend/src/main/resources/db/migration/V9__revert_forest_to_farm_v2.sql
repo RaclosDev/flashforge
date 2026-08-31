@@ -3,6 +3,11 @@ DROP TABLE IF EXISTS forest_plants CASCADE;
 DROP TABLE IF EXISTS forest_unlocks CASCADE;
 DROP TABLE IF EXISTS user_forests CASCADE;
 
+-- Drop existing farm tables if any (from V7)
+DROP TABLE IF EXISTS farm_plots CASCADE;
+DROP TABLE IF EXISTS farm_unlocks CASCADE;
+DROP TABLE IF EXISTS user_farms CASCADE;
+
 -- Create user_farms table
 CREATE TABLE user_farms (
     id BIGSERIAL PRIMARY KEY,
