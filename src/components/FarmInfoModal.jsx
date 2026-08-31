@@ -29,7 +29,7 @@ function FarmInfoModal({ onClose }) {
           <p>Al dominar mazos enteros y acumular rachas de estudio, desbloquearás más espacio en tu granja de forma automática.</p>
         </div>
 
-        <button className="btn-primary" onClick={onClose} style={{width: '100%', marginTop: '1rem'}}>
+        <button className="primary-btn" onClick={onClose} style={{width: '100%', marginTop: '1rem'}}>
           ¡Entendido!
         </button>
       </div>
