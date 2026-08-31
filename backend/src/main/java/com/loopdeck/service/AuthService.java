@@ -29,7 +29,7 @@ public class AuthService {
     private final NoteRepository noteRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-    private final ForestService forestService;
+    private final FarmService farmService;
 
     @Value("${google.client.id:}")
     private String googleClientId;
@@ -39,6 +39,7 @@ public class AuthService {
     public record AuthResponse(String token, UserDto user) {}
     public record UserDto(String id, String email, String name, Integer points, Integer streak, String mascot, java.util.List<String> unlockedSkins) {}
 
+    @Transactional
     public AuthResponse register(RegisterRequest req) {
         if (userRepository.existsByEmail(req.email())) {
             throw new IllegalArgumentException("Email already in use");
@@ -49,7 +50,7 @@ public class AuthService {
                 .passwordHash(passwordEncoder.encode(req.password()))
                 .build();
         userRepository.save(user);
-        forestService.getOrCreateForest(user.getId());
+        farmService.getOrCreateFarm(user.getId());
         String token = jwtUtil.generateToken(user.getId(), user.getEmail());
         return new AuthResponse(token, toDto(user));
     }
@@ -66,6 +67,7 @@ public class AuthService {
         return new AuthResponse(token, toDto(user));
     }
 
+    @Transactional
     public AuthResponse googleLogin(String credential) {
         try {
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
@@ -96,7 +98,7 @@ public class AuthService {
                         .googleId(googleId)
                         .build();
                 userRepository.save(user);
-                forestService.getOrCreateForest(user.getId());
+                farmService.getOrCreateFarm(user.getId());
             } else if (user.getGoogleId() == null) {
                 // Vincular cuenta existente con Google
                 user.setGoogleId(googleId);

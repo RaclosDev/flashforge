@@ -46,7 +46,7 @@ function Layout({ children }) {
     { to: '/', icon: '📚', label: 'Mazos', end: true },
     { to: '/hub', icon: '✏️', label: 'Estudiar', end: true },
     { to: '/add', icon: '➕', label: 'Añadir', end: false },
-    { to: '/forest', icon: '🌲', label: 'Bosque', end: false },
+    { to: '/farm', icon: '🌲', label: 'Granja', end: false },
     { to: '/stats', icon: '📊', label: 'Stats', end: false },
   ];
 
@@ -119,10 +119,10 @@ function Layout({ children }) {
                 Plantillas
               </NavLink>
 
-              <NavLink to="/forest" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={() => {}}>
-                <span className="link-icon">🌲</span>
-                Mi Bosque
-              </NavLink>
+              <NavLink to="/farm" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+              <span className="icon">🧑‍🌾</span>
+              <span>Mi Granja</span>
+            </NavLink>
 
               <NavLink to="/browser" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={() => {}}>
                 <span className="link-icon">🔍</span>

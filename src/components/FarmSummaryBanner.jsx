@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function ForestSummaryBanner({ summary }) {
+const FarmSummaryBanner = ({ summary }) => {
   const [closed, setClosed] = useState(false);
 
   if (closed) return null;
@@ -9,7 +9,7 @@ function ForestSummaryBanner({ summary }) {
   }
 
   return (
-    <div className="forest-summary-banner">
+    <div className="farm-summary-banner">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <h3 style={{ margin: '0 0 1rem 0', color: 'var(--text-main)' }}>Mientras no mirabas...</h3>
         <button className="glass-btn" onClick={() => setClosed(true)} style={{ padding: '0.2rem 0.5rem' }}>✕</button>
@@ -21,19 +21,19 @@ function ForestSummaryBanner({ summary }) {
             {m.emoji} Tu <strong>{m.speciesId}</strong> ha madurado
           </li>
         ))}
-        {summary.harvested.map((h, idx) => (
-          <li key={`harv-${idx}`}>
-            {h.emoji} Se recolectaron <strong>{h.quantity}</strong> de {h.speciesId}
-          </li>
-        ))}
-        {summary.unlocksReached.map((u, idx) => (
-          <li key={`unl-${idx}`}>
-            🎉 Nuevo elemento desbloqueado: <strong>{u}</strong>
-          </li>
-        ))}
+        {summary.harvested && summary.harvested.length > 0 && (
+          <div className="summary-item">
+            <span>{summary.harvested.reduce((a, b) => a + b.quantity, 0)} cosechas recogidas</span>
+          </div>
+        )}
+        {summary.unlocksReached && summary.unlocksReached.length > 0 && (
+          <div className="summary-item unlocks">
+            <span>¡Nuevas parcelas o decoración desbloqueadas!</span>
+          </div>
+        )}
       </ul>
     </div>
   );
 }
 
-export default ForestSummaryBanner;
+export default FarmSummaryBanner;

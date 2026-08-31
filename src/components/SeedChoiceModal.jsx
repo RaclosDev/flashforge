@@ -1,24 +1,22 @@
 import React from 'react';
-import useForestStore from '../store/useForestStore';
+import useFarmStore from '../store/useFarmStore';
 
-function SeedChoiceModal({ onClose }) {
-  const { availableSpecies, plantSeed } = useForestStore();
+function SeedChoiceModal({ onClose, selectedPlotIndex }) {
+  const { availableCrops, plantSeed } = useFarmStore();
   const [planting, setPlanting] = React.useState(false);
+  const [selectedId, setSelectedId] = React.useState(null);
 
-  const handlePlant = async (speciesId) => {
-    if (planting) return;
+  const handlePlant = async () => {
+    if (planting || !selectedId) return;
     setPlanting(true);
     try {
-      await plantSeed(speciesId);
+      await plantSeed(selectedPlotIndex, selectedId);
       onClose();
     } catch (e) {
       console.error(e);
       setPlanting(false);
     }
   };
-
-  // Only show species that are unlocked
-  const unlockedOptions = availableSpecies.filter(s => s.unlocked);
 
   return (
     <div className="seed-modal-overlay">
@@ -30,20 +28,23 @@ function SeedChoiceModal({ onClose }) {
           Elige una semilla. Crecerá pasivamente mientras estudias.
         </p>
 
-        <div className="seed-options">
-          {unlockedOptions.map(s => (
-            <div 
-              key={s.id} 
-              className="seed-card"
-              onClick={() => handlePlant(s.id)}
+        <div className="seed-grid">
+          {availableCrops.filter(c => c.unlocked).map(c => (
+            <button 
+              key={c.id} 
+              className={`seed-btn ${selectedId === c.id ? 'selected' : ''}`}
+              onClick={() => setSelectedId(c.id)}
             >
-              <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>{s.emoji}</div>
-              <div style={{ fontWeight: 600, color: 'var(--text-main)' }}>{s.name}</div>
-            </div>
+              <span className="seed-emoji">{c.emoji}</span>
+              <span className="seed-name">{c.name}</span>
+            </button>
           ))}
         </div>
 
-        <div style={{ textAlign: 'center' }}>
+        <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+          <button className="glass-btn" onClick={handlePlant} disabled={planting || !selectedId}>
+            Plantar
+          </button>
           <button className="glass-btn" onClick={onClose} disabled={planting}>
             Ahora no, más tarde
           </button>

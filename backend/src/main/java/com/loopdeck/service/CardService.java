@@ -19,7 +19,7 @@ public class CardService {
     private final NoteRepository noteRepository;
     private final CardRepository cardRepository;
     private final DeckRepository deckRepository;
-    private final ForestService forestService;
+    private final FarmService farmService;
 
     public record CreateNoteRequest(String deckId, String noteType, String fieldsJson, String tags) {}
     public record UpdateNoteRequest(String fieldsJson, String tags) {}
@@ -126,7 +126,7 @@ public class CardService {
         card = cardRepository.save(card);
         
         // Gamification: add 1 light point per review
-        forestService.addLightPoints(userId, 1);
+        farmService.addLightPoints(userId, 1);
         
         return card;
     }

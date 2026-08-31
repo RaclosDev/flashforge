@@ -5,20 +5,19 @@ import lombok.*;
 import java.time.Instant;
 
 @Entity
-@Table(name = "forest_unlocks")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class ForestUnlock {
+@Table(name = "farm_unlocks", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"farm_id", "unlock_id"})
+})
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+public class FarmUnlock {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "forest_id", nullable = false)
-    private UserForest forest;
+    @JoinColumn(name = "farm_id", nullable = false)
+    private UserFarm farm;
 
     @Column(name = "unlock_id", nullable = false)
     private String unlockId;
